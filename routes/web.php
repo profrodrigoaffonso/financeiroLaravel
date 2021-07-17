@@ -22,7 +22,8 @@
 // }
 
 Route::get('/', function () {
-    return redirect(route('login.login'));
+    // return redirect(route('login.login'));
+    return view('links');
 });
     
 
@@ -42,7 +43,7 @@ Route::get('/app', function () {
 Route::post('/login', 'Auth\LoginController@login')->name('login.login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('login.logout');
 Route::get('/inserir', 'PagamentosController@inserir')->name('pagamentos.inserir');
-Route::get('/app-saques', 'SaquesController@inserir')->name('saques.inserir');
+Route::get('/saques', 'SaquesController@inserir')->name('saques.inserir');
 Route::post('/saques-salvar', 'SaquesController@salvar')->name('saques.salvar');
 Route::post('/salvar', 'PagamentosController@salvar')->name('pagamentos.salvar');
 
