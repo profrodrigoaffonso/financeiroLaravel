@@ -16,8 +16,10 @@ class CreatePagamentosTable extends Migration
     {
         Schema::create('pagamentos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('categoria_id');
-            $table->integer('forma_pagamento_id');
+            $table->bigInteger('categoria_id')->unsigned();
+            $table->bigInteger('forma_pagamento_id')->unsigned();
+            $table->foreign('categoria_id')->references('id')->on('categorias');
+            $table->foreign('forma_pagamento_id')->references('id')->on('forma_pagamentos');
             $table->decimal('valor', 10,2);
             $table->datetime('data_hora');
             $table->enum('tipo', ['e', 's'])->default('s');
