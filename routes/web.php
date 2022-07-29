@@ -25,7 +25,7 @@ Route::get('/', function () {
     // return redirect(route('login.login'));
     return view('links');
 });
-    
+
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -43,6 +43,8 @@ Route::get('/app', function () {
 Route::post('/login', 'Auth\LoginController@login')->name('login.login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('login.logout');
 Route::get('/inserir', 'PagamentosController@inserir')->name('pagamentos.inserir');
+Route::get('/upload', 'PagamentosController@upload')->name('pagamentos.upload');
+Route::post('/store-upload', 'PagamentosController@storeUpload')->name('pagamentos.upload.store');
 Route::get('/saques', 'SaquesController@inserir')->name('saques.inserir');
 Route::post('/saques-salvar', 'SaquesController@salvar')->name('saques.salvar');
 Route::post('/salvar', 'PagamentosController@salvar')->name('pagamentos.salvar');
@@ -51,7 +53,7 @@ Route::prefix('home')->middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
     });
-   
+
 });
 
 // autenticados
@@ -79,7 +81,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
         Route::get('/{id}/edit', 'FormaPagamentosController@edit')->name('forma_pagamentos.edit');
         Route::put('/update', 'FormaPagamentosController@update')->name('forma_pagamentos.update');
     });
-    
+
     Route::prefix('pagamentos')->group(function () {
         Route::get('/', 'PagamentosController@index')->name('pagamentos.index');
         Route::post('/filter', 'PagamentosController@filter')->name('pagamentos.filter');

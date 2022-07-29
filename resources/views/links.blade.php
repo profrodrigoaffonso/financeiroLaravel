@@ -6,8 +6,10 @@
 <br>
 <a class="btn btn-primary btn-lg btn-block" href="/inserir">Inserir</a>
 <br>
-<a class="btn btn-primary btn-lg btn-block" href="/saques">Saques</a>
+<a class="btn btn-primary btn-lg btn-block" href="/upload">Upload</a>
 <br>
-<a class="btn btn-primary btn-lg btn-block" href="http://ec2-3-14-134-74.us-east-2.compute.amazonaws.com">Pessoal</a>
+<a class="btn btn-primary btn-lg btn-block" href="/saques">Saques</a>
+{{-- <br>
+<a class="btn btn-primary btn-lg btn-block" href="http://ec2-3-14-134-74.us-east-2.compute.amazonaws.com">Pessoal</a> --}}
 
 @endsection

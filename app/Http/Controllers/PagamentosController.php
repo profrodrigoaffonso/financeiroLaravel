@@ -16,7 +16,7 @@ class PagamentosController extends Controller
     public function inserir(){
 
         $categorias = Categorias::select('id', 'nome')->get();
-        $formas = FormaPagamentos::select('id', 'nome')->get();   
+        $formas = FormaPagamentos::select('id', 'nome')->get();
         // dd($categorias);
 
         return view('app.inserir', compact('categorias', 'formas'));
@@ -24,7 +24,7 @@ class PagamentosController extends Controller
     }
 
     public function salvar(Request $request){
-        
+
         $dados = $request->all();
 
         $dados['data_hora'] = "{$dados['data']} {$dados['hora']}";
@@ -102,7 +102,7 @@ class PagamentosController extends Controller
             '2019'
         ];
 
-        
+
         return view('pagamentos.exportar', compact('meses', 'anos'));
 
     }
@@ -122,10 +122,10 @@ class PagamentosController extends Controller
         $sheet->setCellValueByColumnAndRow(5, 1, "Hora");
         $sheet->setCellValueByColumnAndRow(6, 1, "Obs");
 
-        $pagamentos = Pagamentos::select('pagamentos.valor', 
-                                        'pagamentos.data_hora', 
+        $pagamentos = Pagamentos::select('pagamentos.valor',
+                                        'pagamentos.data_hora',
                                         'pagamentos.categoria_id',
-                                        'categorias.nome AS categoria', 
+                                        'categorias.nome AS categoria',
                                         'forma_pagamentos.nome AS forma_pagamento')
                                 ->join('categorias','pagamentos.categoria_id', '=', 'categorias.id')
                                 ->join('forma_pagamentos','pagamentos.forma_pagamento_id', '=', 'forma_pagamentos.id')
@@ -156,10 +156,10 @@ class PagamentosController extends Controller
             $sheet->setCellValueByColumnAndRow(3, $i, $pagamento->forma_pagamento);
             $sheet->setCellValueByColumnAndRow(4, $i, date("d/m/Y", strtotime($pagamento->data_hora)));
             $sheet->setCellValueByColumnAndRow(5, $i, date("H:i", strtotime($pagamento->data_hora)));
-            $sheet->setCellValueByColumnAndRow(6, $i, $pagamento->obs); 
+            $sheet->setCellValueByColumnAndRow(6, $i, $pagamento->obs);
 
-            $cat_ant = $pagamento->categoria_id; 
-            $nome_ant =  $pagamento->categoria;      
+            $cat_ant = $pagamento->categoria_id;
+            $nome_ant =  $pagamento->categoria;
 
             $i++;
         }
@@ -169,11 +169,73 @@ class PagamentosController extends Controller
         $writer = new Xlsx($spreadsheet);
 
         $file = "excel/".uniqid().".xlsx";
-        $writer->save($file);  
-        
+        $writer->save($file);
+
         $headers = ['Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
         return response()->download($file, 'Export.xlsx', $headers);
+
+    }
+
+    public function upload()
+    {
+        return view('app.upload');
+    }
+
+    public function storeUpload(Request $request)
+    {
+        $arquivo = $request->file('arquivo');
+
+        $nome = uniqid() . '.csv';
+
+        // dd($arquivo->getPathname());
+
+        if (move_uploaded_file($arquivo->getPathname(), 'uploads/' . $nome)) {
+            //echo "Arquivo válido e enviado com sucesso.\n";
+
+            $csv = array_map('str_getcsv', file('uploads/' . $nome));
+            unset($csv[0]);
+
+            foreach($csv as $row){
+
+                $categoria = Categorias::select('id')->where('nome', $row[0])->first();
+                $forma = FormaPagamentos::select('id')->where('nome', $row[2])->first();
+
+                // dd($categoria);
+
+                $verificar = Pagamentos::where('data_hora', $this->dataDB($row[3]))->first();
+
+                if(!$verificar){
+                    Pagamentos::create([
+                        'categoria_id'          => $categoria->id,
+                        'forma_pagamento_id'    => $forma->id,
+                        'valor'                 => str_replace(',', '.', $row[1]),
+                        'data_hora'             => $this->dataDB($row[3])
+                    ]);
+                }
+
+
+            }
+
+            unlink('uploads/' . $nome);
+
+            return redirect(route('pagamentos.upload'));
+
+        } else {
+            echo "Possível ataque de upload de arquivo!\n";
+        }
+    }
+
+    public function dataDB($data)
+    {
+        $separacao = explode(' ', $data);
+
+        $data = $separacao[0];
+        $hora = $separacao[1];
+
+        $data = explode('/', $data);
+
+        return $data[2] . '-' . $data[1] . '-' . $data[0] . ' ' . $hora;
 
     }
 
